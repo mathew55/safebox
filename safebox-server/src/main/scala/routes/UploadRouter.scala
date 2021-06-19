@@ -46,17 +46,26 @@ object UploadRouter extends DefaultJsonProtocol with SprayJsonSupport {
     )
   } ~ (path("upload") & extractLog) { log =>
     post {
+      println("Request recieved upload")
+      try{
+        entity(as[Multipart.FormData])
+      }catch {
+        case e: Exception => println("Had an IOException trying to read that file")
+      }
       entity(as[Multipart.FormData]) { formdata =>
+        println("here again")
         val partsSource: Source[FormData.BodyPart, Any] = formdata.parts //Get The bodyPart from the file Data
         println("Debug 2")
         val partsFlow: Flow[FormData.BodyPart, Either[(Source[ByteString, Any], File), Throwable], NotUsed] = Flow[Multipart.FormData.BodyPart].map { fileData => {
           println("Debug 3")
-          if (fileData.name == "myFile") {
-            val filename = "/Users/kuriakosemathew/Documents/work/safebox/safebox-server/server-data-bucket/" + fileData.filename.getOrElse("tempFile_" + System.currentTimeMillis())
+          if (fileData.name != "myFile") {
+            print("Inside logic")
+            val filename = "/Users/kuriakosemathew/Documents/work/safebox/safebox-server/src/main/resources/" + fileData.filename.getOrElse("tempFile_" + System.currentTimeMillis())
             val file = new File(filename)
             val fileContentsSource = fileData.entity.dataBytes
             Left(fileContentsSource, file)
           } else {
+            print("Here")
             Right(new RuntimeException("Unexpected File"))
           }
         }
@@ -85,6 +94,7 @@ object UploadRouter extends DefaultJsonProtocol with SprayJsonSupport {
             complete("Unsuccessful Upload")
         }
       }
+
     }
   }
 }
