@@ -1,37 +1,36 @@
-import java.io.{File, FileInputStream}
-import akka.http.scaladsl.unmarshalling.Unmarshal
-import akka.util.ByteString
+import Client.uploadFilePath
 
-import scala.concurrent.duration._
+import java.io.{File, FileInputStream, FileOutputStream}
+import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.Http.ServerBinding
-import FileUpload._
 import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.model._
-import akka.http.scaladsl.model.Uri._
-import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{FileIO, Source}
 import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.concurrent.{Future, Promise}
 
-object Client extends App {
+object Client extends App with Config {
+
   val testConf = ConfigFactory.parseString(
     """
     akka.loglevel = INFO
     akka.log-dead-letters = off""")
+
+  val encryptionService = new EncryptionService()
   implicit val system = ActorSystem("UploadingFiles", testConf)
   implicit val materializer = ActorMaterializer()
 
   import system.dispatcher
 
-  val testFile = new File("/Users/kuriakosemathew/Documents/work/safebox/safebox-client/src/main/resources/pom.xml")
+  val testFile = new File(uploadFilePath)
 
 
   def createEntity(file: File): Future[RequestEntity] = {
     require(file.exists())
+
     val formData =
       Multipart.FormData(
         Source.single(
@@ -48,38 +47,33 @@ object Client extends App {
       e ← createEntity(file)
     } yield HttpRequest(HttpMethods.POST, uri = target, entity = e)
 
-  val uri = Uri("http://localhost:5000/upload")
+  val uri = Uri(serverUploadEndpoint)
   val fileStream = new FileInputStream(testFile)
-  val fileData : Array[Byte] = new Array[Byte](testFile.length().toInt)
+  val fileName = uploadFilePath.split("/").last
+  val fileData: Array[Byte] = new Array[Byte](testFile.length().toInt)
   fileStream.read(fileData)
-  println(fileData)
+
+  val encryptedFile = encryptionService.Encrypt(encryptionKey , fileData)
   val reqEntity = Array[Byte]()
 
+  val encryptedFileByteArray : Array[Byte] = fileData
+  val encryptedFilePath = s"src/main/resources/staging-area/${fileName}-enc"
+  val encryptedFileOutFile = new FileOutputStream(encryptedFilePath)
+  encryptedFileOutFile.write(encryptedFileByteArray)
+  encryptedFileOutFile.close()
+  val fileToUpload = new File(encryptedFilePath)
   val result =
     for {
-      req ← createRequest(uri, testFile)
+
+      req ← createRequest(uri, fileToUpload)
       _ = println(s"Running request, uploading test file of size ${testFile.length} bytes")
       response ← Http().singleRequest(req)
       responseBodyAsString ← Unmarshal(response).to[String]
     } yield responseBodyAsString
 
-//  try {
-//    val respEntity = for {
-//      request <- Marshal(fileData).to[RequestEntity]
-//      response <- Http().singleRequest(HttpRequest(method = HttpMethods.POST, uri = uri, entity = request))
-//      entity <- Unmarshal(response.entity).to[ByteString]
-//    } yield entity
+  result.onComplete { res ⇒
+    println(s"The result was $res")
+  }
 
-    result.onComplete { res ⇒
-      println(s"The result was $res")
-    }
-
-//    system.scheduler.scheduleOnce(60.seconds) {
-//      println("Shutting down after timeout...")
-//      system.terminate()
-//    }
-//  } catch {
-//    case _: Throwable ⇒ system.terminate()
-//  }
 
 }

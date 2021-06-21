@@ -5,7 +5,7 @@ import org.bouncycastle.crypto.paddings._
 import org.bouncycastle.crypto.params._
 
 
-class Tesbouncy {
+class EncryptionService {
   val engine = new DESEngine
 
   def Encrypt(keys: String, plainText: Array[Byte]): Array[Byte] = {
