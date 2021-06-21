@@ -19,7 +19,7 @@ object DownloadRouter  {
   }
 
   def download: RequestContext => Future[RouteResult] = get {
-    (path("download") {
+    path("download") {
       val file = new File("src/main/resources/download-test.txt")
       respondWithHeaders(RawHeader("Content-Disposition", s"""attachment; filename="download-test.txt"""")) {
         complete(HttpEntity(ContentTypes.`application/octet-stream`, FileIO.fromPath(file.toPath)))
