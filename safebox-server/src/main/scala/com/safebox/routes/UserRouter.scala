@@ -22,8 +22,6 @@ object UserRouter {
       if(!Files.exists(folderPath))
         Files.createDirectory(folderPath)
       complete(s"User created - ${id}")
-    }~(path("user" / "deleteuser" / IntNumber) & get) { id =>
-      complete(s"User deleted - ${id}")
     }
 
 
