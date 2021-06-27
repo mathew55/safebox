@@ -2,7 +2,7 @@ package com.safebox.routes
 
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
-import akka.http.scaladsl.server.Directives.{complete, get, listDirectoryContents, parameters, path, respondWithHeaders}
+import akka.http.scaladsl.server.Directives.{complete, get, parameters, path, respondWithHeaders}
 import akka.http.scaladsl.server.{RequestContext, RouteResult}
 import akka.stream.scaladsl.FileIO
 
@@ -10,7 +10,12 @@ import java.io.File
 import scala.concurrent.Future
 
 class DownloadRouter {
-
+  /**
+   * api route which takes care of file downloads, takes in fileName to be
+   * downloaded as parameter, Return file as stream if exists else displays
+   * error message
+   * @return
+   */
   def download: RequestContext => Future[RouteResult] =
     parameters("fileName") { fileName =>
       get {
@@ -27,6 +32,7 @@ class DownloadRouter {
       }
     }
 }
+
 object DownloadRouter{
   def apply: List[RequestContext => Future[RouteResult]] ={
     val downloadRouterObject = new DownloadRouter()

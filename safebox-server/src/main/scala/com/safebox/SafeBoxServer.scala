@@ -6,6 +6,10 @@ import com.safebox.routes.MasterRouter
 import scala.concurrent.Await
 import scala.util.{Failure, Success}
 
+/**
+ * Main CLass responsible for starting of the server.
+ * Get all the routes form MasterRouter object.
+ */
 object SafeBoxServer extends App with AkkaSysProperties {
 
   import system.dispatcher

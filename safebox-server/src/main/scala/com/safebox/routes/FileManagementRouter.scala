@@ -8,6 +8,10 @@ import scala.concurrent.Future
 
 class FileManagementRouter {
 
+  /**
+   * api route which lists all the files present in the server
+   * @return
+   */
   def listfiles: RequestContext => Future[RouteResult] = get {
     path("list") {
       println("Request recieved")
@@ -15,6 +19,11 @@ class FileManagementRouter {
     }
   }
 
+  /**
+   * api route which lets users delete files from servers, takes in filename as
+   * api parameter. Deletes file if it exists
+   * @return
+   */
   def deleteFile: RequestContext => Future[RouteResult] =
     parameters("fileName") { fileName =>
       get {

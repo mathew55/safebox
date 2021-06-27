@@ -19,7 +19,10 @@ import spray.json._
 class UploadRouter extends DefaultJsonProtocol with SprayJsonSupport with AkkaSysProperties{
 
   import scala.concurrent.ExecutionContext.Implicits.global
-
+  /**
+   * api route which helps in uploading files to server. Displays a form as homepage
+   * for quick server testing and for uploading files without encryption.
+   */
   def uploadRoute: RequestContext => Future[RouteResult] = (pathEndOrSingleSlash & get) {
     complete(
       HttpEntity(

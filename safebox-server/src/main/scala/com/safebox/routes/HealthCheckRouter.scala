@@ -6,7 +6,11 @@ import akka.http.scaladsl.server.{RequestContext, RouteResult}
 import scala.concurrent.Future
 
 class HealthCheckRouter{
-
+  /**
+   * api route which can be used to check the health of
+   * application when deployed inside docker.
+   * @return
+   */
   def route: RequestContext => Future[RouteResult] = path("healthCheck") {  get {complete("Server is up")  }}
 
 }
