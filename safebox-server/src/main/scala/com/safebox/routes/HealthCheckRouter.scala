@@ -5,8 +5,14 @@ import akka.http.scaladsl.server.{RequestContext, RouteResult}
 
 import scala.concurrent.Future
 
-object HealthCheckRouter{
+class HealthCheckRouter{
 
   def route: RequestContext => Future[RouteResult] = path("healthCheck") {  get {complete("Server is up")  }}
 
+}
+object HealthCheckRouter{
+  def apply: List[RequestContext => Future[RouteResult]] ={
+    val healthCheckRouterObject = new HealthCheckRouter()
+    List(healthCheckRouterObject.route)
+  }
 }

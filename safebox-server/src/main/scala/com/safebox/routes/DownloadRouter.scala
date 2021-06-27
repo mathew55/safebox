@@ -9,14 +9,7 @@ import akka.stream.scaladsl.FileIO
 import java.io.File
 import scala.concurrent.Future
 
-object DownloadRouter {
-
-  def listfiles: RequestContext => Future[RouteResult] = get {
-    path("list") {
-      println("Request recieved")
-      listDirectoryContents("src/main/resources/")
-    }
-  }
+class DownloadRouter {
 
   def download: RequestContext => Future[RouteResult] =
     parameters("fileName") { fileName =>
@@ -33,4 +26,10 @@ object DownloadRouter {
         }
       }
     }
+}
+object DownloadRouter{
+  def apply: List[RequestContext => Future[RouteResult]] ={
+    val downloadRouterObject = new DownloadRouter()
+    List(downloadRouterObject.download)
+  }
 }

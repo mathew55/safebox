@@ -16,7 +16,7 @@ import com.safebox.AkkaSysProperties
 import spray.json._
 
 
-object UploadRouter extends DefaultJsonProtocol with SprayJsonSupport with AkkaSysProperties{
+class UploadRouter extends DefaultJsonProtocol with SprayJsonSupport with AkkaSysProperties{
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -92,5 +92,11 @@ object UploadRouter extends DefaultJsonProtocol with SprayJsonSupport with AkkaS
       }
 
     }
+  }
+}
+object UploadRouter{
+  def apply: List[RequestContext => Future[RouteResult]] ={
+    val uploadRouterObject = new UploadRouter()
+    List(uploadRouterObject.uploadRoute)
   }
 }
