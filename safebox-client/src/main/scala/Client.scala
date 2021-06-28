@@ -1,12 +1,6 @@
-import Utils.{createRequest, downloadFile, uploadFile}
-
-import java.io.{File, FileInputStream, FileOutputStream}
-import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.model._
-import akka.stream.ActorMaterializer
 import com.typesafe.config.ConfigFactory
+import Utils.{ downloadFile, uploadFile}
 
 object Client extends App with Config {
 

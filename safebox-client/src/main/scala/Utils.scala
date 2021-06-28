@@ -9,12 +9,22 @@ import akka.stream.scaladsl.{FileIO, Source}
 import java.io.{File, FileInputStream, FileOutputStream}
 import scala.concurrent.Future
 
+/**
+ * Encapsulates all utility functions required for the Client
+ */
 object Utils {
 
   import Client.system
   import Client.system.dispatcher
   implicit val materializer = ActorMaterializer()
 
+  /**
+   * Function which takes in a file object and return a future of
+   * RequestEntity. Helps in streaming large file objects to a
+   * server
+   * @param file
+   * @return
+   */
   def createEntity(file: File): Future[RequestEntity] = {
     require(file.exists())
 
@@ -28,13 +38,22 @@ object Utils {
     Marshal(formData).to[RequestEntity]
   }
 
-
+  /**
+   * Function which takes in the Uri Endpoint and file object and
+   * creates an HttpRequest
+   * @param target
+   * @param file
+   * @return
+   */
   def createRequest(target: Uri, file: File): Future[HttpRequest] =
     for {
       e ← createEntity(file)
     } yield HttpRequest(HttpMethods.POST, uri = target, entity = e)
 
-
+  /**
+   * Function which is used to prepare a file and upload to server.
+   * @param filepath
+   */
   def uploadFile(filepath: String): Unit = {
     val fileToUpload = new File(filepath)
     val uri = Uri(serverUploadEndpoint)
@@ -53,6 +72,10 @@ object Utils {
     }
   }
 
+  /**
+   * Function which is used to download and decrypt a file from server.
+   * @param filepath
+   */
   def downloadFile(filepath: String): Unit = {
     val fileToUpload = new File(filepath)
     val uri = Uri(serverUploadEndpoint)
@@ -71,6 +94,11 @@ object Utils {
     }
   }
 
+  /**
+   * Utility function to encrypt and stage a file for upload
+   * @param fileToUpload
+   * @return
+   */
   def encryptAndStageFile(fileToUpload: File) = {
     val fileName = fileToUpload.getName
     print(s"Filename - ${fileName}")

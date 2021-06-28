@@ -4,13 +4,22 @@ import org.bouncycastle.crypto.modes._
 import org.bouncycastle.crypto.paddings._
 import org.bouncycastle.crypto.params._
 
-
+/**
+ * BouncyCastle Utilities implementation for decryption services.
+ * Uses DESEngine for all crypto services.
+ */
 class EncryptionService {
   val engine = new DESEngine
 
-  def Encrypt(keys: String, plainText: Array[Byte]): Array[Byte] = {
+  /**
+   * BouncyCastle Encryption service utility
+   * @param keys - key to encrypt the file
+   * @param plainData - The data to be encrypted
+   * @return - EncryptedData
+   */
+  def Encrypt(keys: String, plainData: Array[Byte]): Array[Byte] = {
     val key = keys.getBytes
-    val ptBytes = plainText
+    val ptBytes = plainData
     val cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(engine))
     cipher.init(true, new KeyParameter(key))
     val rv = new Array[Byte](cipher.getOutputSize(ptBytes.length))
@@ -23,6 +32,12 @@ class EncryptionService {
     rv
   }
 
+  /**
+   * BouncyCastle Decryption service utility
+   * @param key2 - Key to decrypt the file
+   * @param cipherText - The data to be decrypted
+   * @return - DecryptedData
+   */
   def Decrypt(key2: String, cipherText: Array[Byte]): Array[Byte] = {
     val key = key2.getBytes
     val cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(engine))
